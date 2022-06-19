@@ -144,6 +144,11 @@ namespace SyrTraitValue
             return $"<color=#{Mathf.RoundToInt(color.r * 255):X2}{Mathf.RoundToInt(color.g * 255):X2}{Mathf.RoundToInt(color.b * 255):X2}>";
         }
 
+        private static string getTraitsModName(TraitDef t) 
+        {
+            return t.modContentPack != null ? t.modContentPack.Name : "Unknown mod (trait defined with a patch?)";
+        }
+
         public static void CountTraits()
         {
             int traitsInTotal = 0;
@@ -159,7 +164,7 @@ namespace SyrTraitValue
                     traitsWithValue += traitValues;
                     if (degrees != traitValues)
                     {
-                        Log.Warning(t.modContentPack.Name + ": TraitDef " + t.defName.ToString() + " has " + degrees + " degrees, but " + traitValues + " values. You should configure one value per trait degree data.");
+                        Log.Warning(getTraitsModName(t) + ": TraitDef " + t.defName.ToString() + " has " + degrees + " degrees, but " + traitValues + " values. You should configure one value per trait degree data.");
                         modExtension.traitValues.AddRange(t.degreeDatas.Where(tdd => modExtension.traitValues.FirstOrDefault(tv => tv.degree == tdd.degree) == null).Select(tdd => new DegreeValue(tdd.degree, 0)));
                     }
                     foreach (DegreeValue degreeValue in modExtension.traitValues)
@@ -172,8 +177,7 @@ namespace SyrTraitValue
                 else
                 {
                     //Adds mod extension, creates a new list if no mod extensions present, then creates an extension and for each degree a DegreeValue
-                    ModMetaData meta = ModLister.GetModWithIdentifier(t.modContentPack.PackageId);
-                    Log.Warning(t.modContentPack.Name + ": TraitDef" + t.defName.ToString() + " does not have trait values set up for integration with [SYR] Trait Values. You can ask the mod author politely to add integration, but accept if they don't want to.");
+                    Log.Warning(getTraitsModName(t) + ": TraitDef" + t.defName.ToString() + " does not have trait values set up for integration with [SYR] Trait Values. You can ask the mod author politely to add integration, but accept if they don't want to.");         
                     t.modExtensions = (t.modExtensions ?? new List<DefModExtension>()).Append(new TraitValueExtension { traitValues = t.degreeDatas.Select(tdd => new DegreeValue(tdd.degree, 0)).ToList() }).ToList();
                 }
             }
